@@ -102,4 +102,110 @@ plt.title(
 plt.tight_layout()
 plt.show()
 ## Parte 2: Primer analisis exploratorio
-### 
+### 8. Realicen una matriz de correlación para 2024T4 y 2025T4 con las siguientes variables: SECTOR, ESTADO, CAT_OCU, P21, P47T, NIVEL ED, CH04, CH06, CH07, CH08. Utilicen alguno de los comandos disponibles en este link para graficar la matriz de correlación. Comenten los resultados. ¿Cambiaron mucho las correlaciones entre las variables de 2024 a 2025?
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+ocupados24 = ocupados[ocupados["ANO4"] == 2024].copy()
+ocupados25 = ocupados[ocupados["ANO4"] == 2025].copy()
+variables = [
+    "SECTOR",
+    "ESTADO",
+    "CAT_OCUP",
+    "P21",
+    "P47T",
+    "NIVEL_ED",
+    "CH04",
+    "CH06",
+    "CH07",
+    "CH08"
+]
+corr24 = ocupados24[variables].corr()
+corr25 = ocupados25[variables].corr()
+fig, axes = plt.subplots(1, 2, figsize=(18, 8))
+#####Correlación 2024
+sns.heatmap(
+    corr24,
+    annot=True,
+    fmt=".2f",
+    cmap="coolwarm",
+    vmin=-1,
+    vmax=1,
+    square=True,
+    ax=axes[0]
+)
+axes[0].set_title("Matriz de correlación - 2024T4")
+#### Correlación 2025
+sns.heatmap(
+    corr25,
+    annot=True,
+    fmt=".2f",
+    cmap="coolwarm",
+    vmin=-1,
+    vmax=1,
+    square=True,
+    ax=axes[1]
+)
+axes[1].set_title("Matriz de correlación - 2025T4")
+plt.tight_layout()
+plt.show()
+### 9.	Realicen y comenten una tabla de estadistica descriptiva de todas las variables seleccionadas. La misma debe tener: número de observaciones, promedio, desvío estandar, min, p1, p25, p50, p75, p99 y max.
+import pandas as pd
+ocupados24 = ocupados[ocupados["ANO4"] == 2024].copy()
+ocupados25 = ocupados[ocupados["ANO4"] == 2025].copy()
+variables = [
+    "CH04",
+    "CH06",
+    "CH07",
+    "CH08",
+    "NIVEL_ED",
+    "ESTADO",
+    "CAT_OCUP",
+    "EMPLEO",
+    "SECTOR",
+    "PP04C",
+    "PP04D_COD",
+    "P21",
+    "P47T",
+    "PP07H",
+    "PP07I"
+]
+def tabla_descriptiva(df):
+    tabla = df[variables].describe(
+        percentiles=[0.01, 0.25, 0.50, 0.75, 0.99]
+    ).T
+    tabla = tabla[[
+        "count",
+        "mean",
+        "std",
+        "min",
+        "1%",
+        "25%",
+        "50%",
+        "75%",
+        "99%",
+        "max"
+    ]]
+    tabla.columns = [
+        "Observaciones",
+        "Promedio",
+        "Desv. Est.",
+        "Mínimo",
+        "P1",
+        "P25",
+        "P50",
+        "P75",
+        "P99",
+        "Máximo"
+    ]
+    return tabla.round(2)
+tabla2024 = tabla_descriptiva(ocupados24)
+tabla2025 = tabla_descriptiva(ocupados25)
+print("="*60)
+print("ESTADÍSTICAS DESCRIPTIVAS - OCUPADOS 2024T4")
+print("="*60)
+display(tabla2024)
+print("="*60)
+print("ESTADÍSTICAS DESCRIPTIVAS - OCUPADOS 2025T4")
+print("="*60)
+display(tabla2025)
