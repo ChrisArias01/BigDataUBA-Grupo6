@@ -167,6 +167,20 @@ ocupados.to_excel(
     index=False
 )
 ### 7. Reporten, comparen y comenten en 1 párrafo usando una figura de heatmap el porcentaje de valores faltantes de las variables seleccionadas para cada año (NaN en Python) en la base respondieron versus la base ocupados. También reporten en la figura el total de observaciones para cada año. 
+nombres_variables = {
+    "SECTOR": "Sector laboral",
+    "ESTADO": "Condición de actividad",
+    "CAT_OCUP": "Categoría ocupacional",
+    "P21": "Ingreso ocupación principal",
+    "P47T": "Ingreso total individual",
+    "NIVEL_ED": "Nivel educativo",
+    "CH04": "Sexo",
+    "CH06": "Edad",
+    "CH07": "Estado civil",
+    "CH08": "Lugar de nacimiento",
+    "PP04C": "Cantidad de trabajadores del establecimiento",
+    "PP04D_COD": "Código de actividad económica"
+}
 variables_heatmap = [
     "CH04",
     "CH06",
@@ -221,6 +235,7 @@ faltantes = pd.DataFrame({
     )
 })
 faltantes = faltantes.round(2)
+faltantes = faltantes.rename(index=nombres_variables)
 display(faltantes)
 #### Heatmap
 plt.figure(figsize=(10,8))
@@ -297,6 +312,14 @@ corr_2024 = eph_2024[
 corr_2025 = eph_2025[
     variables_corr
 ].corr()
+corr_2024 = corr_2024.rename(
+    index=nombres_variables,
+    columns=nombres_variables
+)
+corr_2025 = corr_2025.rename(
+    index=nombres_variables,
+    columns=nombres_variables
+)
 print("\nMatriz de correlación 2024T4")
 display(
     corr_2024.round(2)
@@ -309,7 +332,6 @@ display(
 plt.figure(
     figsize=(10,8)
 )
-
 sns.heatmap(
     corr_2024,
     vmin=-1,
@@ -362,6 +384,19 @@ corr_2025.to_excel(
 )
 print("Matrices exportadas correctamente")
 ### 9.	Realicen y comenten una tabla de estadistica descriptiva de todas las variables seleccionadas. La misma debe tener: número de observaciones, promedio, desvío estandar, min, p1, p25, p50, p75, p99 y max.
+#### Etiquetas descriptivas para presentación de tablas
+nombres_variables = {
+    "SECTOR": "Sector laboral",
+    "ESTADO": "Condición de actividad",
+    "CAT_OCUP": "Categoría ocupacional",
+    "P21": "Ingreso ocupación principal",
+    "P47T": "Ingreso total individual",
+    "NIVEL_ED": "Nivel educativo",
+    "CH04": "Sexo",
+    "CH06": "Edad",
+    "CH07": "Estado civil",
+    "CH08": "Lugar de nacimiento"
+}
 variables_desc = [
     "SECTOR",
     "ESTADO",
@@ -413,6 +448,7 @@ desc = desc[
         "Máximo"
     ]
 ]
+desc = desc.rename(index=nombres_variables)
 desc = desc.round(2)
 display(desc)
 desc.to_excel(
