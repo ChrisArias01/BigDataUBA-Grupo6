@@ -1,1 +1,103 @@
 # BigDataUBA-Grupo6
+## Intregrantes:
+Angel Avila 
+Christian Arias
+## Parte 1: Familiarización con la EPH
+### 1.	Utilizando información disponible en la página del INDEC, expliquen brevemente cómo se identifica a las personas informales.
+Según la metodología del INDEC, la informalidad laboral se identifica principalmente entre los trabajadores asalariados. Una persona ocupada se considera asalariada no registrada (informal) cuando declara que no le realizan descuentos jubilatorios por el empleo que desempeña. La Encuesta Permanente de Hogares (EPH) releva esta información mediante preguntas específicas del módulo ocupacional, permitiendo distinguir entre empleo registrado y no registrado. En consecuencia, la tasa de informalidad laboral se calcula como la proporción de asalariados que no cuentan con aportes al sistema de seguridad social sobre el total de asalariados.
+### 2. Descarguen las bases de datos y realicen los siguientes incisos.
+#### a. 	Seleccione 20 variables de interés para armonizar los formatos entre ambos años. Entre las cuales tienen que estar: CH04, CH06, CH07, CH08, NIVEL_ED, ESTADO, CAT_OCUP, EMPLEO, SECTOR, PP04C, PP04D_COD, P21, P47T.  En este ítem se debe chequear consistencia de tipo de dato de cada año, de modo que las variables seleccionadas queden limpias/armonizadas en la base final. Sea cuidadoso ya que su trabajo futuro depende de esta limpieza. Tambien conserve todas las variables referidas a la identificación de personas como CODUSU, ANO4, TRIMESTRE, NRO_HOGAR, PONDERA. 
+import pandas as pd
+import numpy as np
+eph24 = pd.read_excel("usu_individual_T424.xlsx")
+eph25 = pd.read_excel("usu_individual_T425.xlsx")
+print(eph24.dtypes)
+print(eph25.dtypes)
+eph = pd.concat([eph24, eph25], ignore_index=True)
+print(eph.shape)
+print("Valores de P21")
+print(eph["P21"].value_counts().sort_index())
+print("\nValores de P47T")
+print(eph["P47T"].value_counts().sort_index())
+#### b. Corrijan variables si notan valores sin sentido (como ingresos negativos) de acuerdo a la documentación de la EPH (puede ser una codificación de no respuesta de los individuos) y eliminen estos valores extraños de sus 15 variables de interés. Comenten en 1 párrafo el proceso de limpieza.
+eph["P21"] = eph["P21"].replace(-9, np.nan)
+eph["P47T"] = eph["P47T"].replace(-9, np.nan)
+### 3. Uno de los grandes problemas del mercado laboral argentino es la informalidad. ¿Cuántas personas no respondieron cuál es su condición de actividad (ESTADO)? Guarden como una base distinta llamada respondieron las observaciones donde sí respondieron dicha pregunta (ESTADO ≠ 0). Las observaciones con ESTADO = 0 guárdenlas en una base bajo el nombre norespondieron.
+#### Personas que respondieron la condición de actividad
+respondieron = eph[eph["ESTADO"] != 0]
+#### Personas que no respondieron la condición de actividad
+norespondieron = eph[eph["ESTADO"] == 0]
+#### Guardar las bases
+respondieron.to_excel("respondieron.xlsx", index=False)
+norespondieron.to_excel("norespondieron.xlsx", index=False)
+print("Base 'respondieron':", respondieron.shape)
+print("Base 'norespondieron':", norespondieron.shape)
+### 4. Quedense dentro de respondieron únicamente con las personas ocupadas (ESTADO = 1), ya que el análisis de formalidad aplica exclusivamente a quienes trabajan. Llamen a esta subbase ocupados.
+ocupados = respondieron[respondieron["ESTADO"] == 1].copy()
+print("Cantidad de ocupados:", len(ocupados))
+### 5. Creación de variables: Para las variables categoricas seleccionadas, cree inteligentemente variables dicotomicas binarias necesarias para trabajar con dichos datos. Recuerde renombrar dichas variables para que las etiquetas tengan sentido en el gráfico.
+#### En ocupados
+#### Sexo
+ocupados["hombre"] = (ocupados["CH04"] == 1).astype(int)
+#### Casado
+ocupados["casado"] = (ocupados["CH07"] == 1).astype(int)
+#### Secundario completo o más
+ocupados["secundario+"] = (ocupados["NIVEL_ED"] >= 4).astype(int)
+#### Asalariado
+ocupados["asalariado"] = (ocupados["CAT_OCUP"] == 3).astype(int)
+#### Sector público
+ocupados["sector_publico"] = (ocupados["SECTOR"] == 1).astype(int)
+#### Empleo pleno
+ocupados["empleo_pleno"] = (ocupados["EMPLEO"] == 1).astype(int)
+#### Verificación
+ocupados[["hombre","casado","secundario+","asalariado"]].head()
+#### En respondieron
+respondieron = respondieron.copy()
+#### Sexo (1 = hombre)
+respondieron["hombre"] = (respondieron["CH04"] == 1).astype(int)
+#### Estado civil (1 = casado)
+respondieron["casado"] = (respondieron["CH07"] == 1).astype(int)
+#### Nivel educativo (1 = secundario completo o más)
+respondieron["secundario+"] = (respondieron["NIVEL_ED"] >= 4).astype(int)
+#### Categoría ocupacional (1 = asalariado)
+respondieron["asalariado"] = (respondieron["CAT_OCUP"] == 3).astype(int)
+#### Sector (1 = público)
+respondieron["sector_publico"] = (respondieron["SECTOR"] == 1).astype(int)
+#### Empleo (1 = empleo pleno)
+respondieron["empleo_pleno"] = (respondieron["EMPLEO"] == 1).astype(int)
+### 6. Actualice las variables P21 y P47T con los ingresos de la ocupación principal y totales. Recuerde que los pesos de 2024T4 tienen un poder de compra distinto a los pesos de 2025T4 en el tercer trimestre. Convierta primero los ingresos de 2024T4 a pesos de 2025T4.
+factor = 1.30
+ocupados.loc[ocupados["ANO4"]==2024,"P21"] *= factor
+ocupados.loc[ocupados["ANO4"]==2024,"P47T"] *= factor
+### 7. Reporten, comparen y comenten en 1 párrafo usando una figura de heatmap el porcentaje de valores faltantes de las variables seleccionadas para cada año (NaN en Python) en la base respondieron versus la base ocupados. También reporten en la figura el total de observaciones para cada año. 
+def porcentaje_nan(df):
+    return df.isna().mean() * 100
+nan_resp24 = porcentaje_nan(respondieron[respondieron["ANO4"] == 2024])
+nan_resp25 = porcentaje_nan(respondieron[respondieron["ANO4"] == 2025])
+nan_oc24 = porcentaje_nan(ocupados[ocupados["ANO4"] == 2024])
+nan_oc25 = porcentaje_nan(ocupados[ocupados["ANO4"] == 2025])
+heatmap = pd.DataFrame({
+    "Resp.2024": nan_resp24,
+    "Resp.2025": nan_resp25,
+    "Ocup.2024": nan_oc24,
+    "Ocup.2025": nan_oc25
+})
+import matplotlib.pyplot as plt
+import seaborn as sns
+plt.figure(figsize=(10,10))
+sns.heatmap(
+    heatmap,
+    annot=True,
+    cmap="YlOrRd",
+    fmt=".1f",
+    linewidths=0.5
+)
+plt.title(
+    f"Porcentaje de valores faltantes (%)\n"
+    f"Respondieron 2024 (n={len(respondieron[respondieron['ANO4']==2024])}) | "
+    f"Respondieron 2025 (n={len(respondieron[respondieron['ANO4']==2025])})\n"
+    f"Ocupados 2024 (n={len(ocupados[ocupados['ANO4']==2024])}) | "
+    f"Ocupados 2025 (n={len(ocupados[ocupados['ANO4']==2025])})"
+)
+plt.tight_layout()
+plt.show()
