@@ -6,7 +6,7 @@ Christian Arias
 ### 1.	Utilizando información disponible en la página del INDEC, expliquen brevemente cómo se identifica a las personas informales.
 Según la metodología del INDEC, la informalidad laboral se identifica principalmente entre los trabajadores asalariados. Una persona ocupada se considera asalariada no registrada (informal) cuando declara que no le realizan descuentos jubilatorios por el empleo que desempeña. La Encuesta Permanente de Hogares (EPH) releva esta información mediante preguntas específicas del módulo ocupacional, permitiendo distinguir entre empleo registrado y no registrado. En consecuencia, la tasa de informalidad laboral se calcula como la proporción de asalariados que no cuentan con aportes al sistema de seguridad social sobre el total de asalariados.
 ### 2. Descarguen las bases de datos y realicen los siguientes incisos.
-#### a. 	Seleccione 20 variables de interés para armonizar los formatos entre ambos años. Entre las cuales tienen que estar: CH04, CH06, CH07, CH08, NIVEL_ED, ESTADO, CAT_OCUP, EMPLEO, SECTOR, PP04C, PP04D_COD, P21, P47T.  En este ítem se debe chequear consistencia de tipo de dato de cada año, de modo que las variables seleccionadas queden limpias/armonizadas en la base final. Sea cuidadoso ya que su trabajo futuro depende de esta limpieza. Tambien conserve todas las variables referidas a la identificación de personas como CODUSU, ANO4, TRIMESTRE, NRO_HOGAR, PONDERA. 
+#### a. Seleccione 20 variables de interés para armonizar los formatos entre ambos años. Entre las cuales tienen que estar: CH04, CH06, CH07, CH08, NIVEL_ED, ESTADO, CAT_OCUP, EMPLEO, SECTOR, PP04C, PP04D_COD, P21, P47T.  En este ítem se debe chequear consistencia de tipo de dato de cada año, de modo que las variables seleccionadas queden limpias/armonizadas en la base final. Sea cuidadoso ya que su trabajo futuro depende de esta limpieza. Tambien conserve todas las variables referidas a la identificación de personas como CODUSU, ANO4, TRIMESTRE, NRO_HOGAR, PONDERA. 
 import pandas as pd
 import numpy as np
 eph24 = pd.read_excel("usu_individual_T424.xlsx")
@@ -101,3 +101,5 @@ plt.title(
 )
 plt.tight_layout()
 plt.show()
+## Parte 2: Primer analisis exploratorio
+### 
